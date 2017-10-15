@@ -22,6 +22,7 @@ public:
 	__uint8_t type() { return d_type; }
 
 	void printVerbose(ostream&);
+	~Direntry() {}
 };
 
 // -----------------------------------------------------------------------------
@@ -34,6 +35,7 @@ public:
 	int nLinks;
 
 	FileID() {}
+	~FileID() {}
 	FileID(string, ino_t, int, int);
 	static bool inodeCompare(ino_t node1, ino_t node2) { return (node1 < node2); }
 	static bool lenCompare(int len1, int len2) { return (len1 < len2); }

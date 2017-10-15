@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <map>
 // -----------------------------------------------------------------------------
 // Sweeper constructor
 Sweeper::Sweeper(int argc, char* argv[])
@@ -24,8 +25,8 @@ void Sweeper::run()
 	fbanner(out);
 	
 	// normalize the pathname
-	path = param->directory;
-	convertToAbsolute();
+	//path = param->directory;
+	path = convertToAbsolute(param->directory);
 	
 	// print some header info
 	if (param->outputFile)
@@ -41,6 +42,7 @@ void Sweeper::run()
 	out.close();
 	delete param;
 }
+
 // -----------------------------------------------------------------------------
 // Echo command line args
 void Sweeper::printHeader(ostream& outstream)
@@ -55,30 +57,52 @@ void Sweeper::printHeader(ostream& outstream)
 	outstream << "Directory: " << param->directory << endl;
 	outstream << "------------------------------------------------------" << endl;
 }
+
 // Print stats for all output
 void Sweeper::printStats(ostream& outstream)
 {
-	//outstream << "Regular files: " << files.size() << endl;
 	outstream << endl;
+	map<ino_t, vector<FileID>> fileMap;
 	for (int i = 0; i < files.size(); ++i)
 	{
-		outstream << "I-Node " << files[i].inodeNum << " links " << files[i].nLinks << endl;
-		outstream << "\t" << files[i].pathName << endl;
+		fileMap[files[i].inodeNum].push_back(files[i]);
+	}
+	
+	for (map<ino_t, vector<FileID>>::iterator it = fileMap.begin(); it != fileMap.end(); ++it)
+	{
+		outstream << "I-Node " << it->first << " links " << it->second[0].nLinks << endl;
+		for (int k = 0; k < it->second.size(); k++)
+		{
+			outstream << "\t" << it->second[k].pathName << endl;
+		}
 	}
 }
 
 // -----------------------------------------------------------------------------
 // Convert to absolute file path
-void Sweeper::convertToAbsolute()
+string Sweeper::convertToAbsolute(string path)
 {
-	if (path.substr(0, 2).compare("./") == 0)
+	char cwd[255];
+	string absolutePath;
+	string relativePath;
+	if (path.substr(0, 1).compare("/") == 0)
 	{
-		char cwd[255];
-		string relative = path.substr(3, string::npos);
-		getcwd(cwd, 255); // magic number
-		path = strcat(cwd, "/");
-		path = path + relative;
+		return path; // it's already absolute
 	}
+	else if (path.substr(0, 2).compare("./") == 0) // path begins with ./
+	{
+		relativePath = path.substr(2, string::npos);
+	}
+	else // the relative path is just the name of the dir
+	{
+		relativePath = path;
+	}
+
+	getcwd(cwd, 255); // magic number because getcwd won't let me omit it
+	absolutePath = strcat(cwd, "/");
+	absolutePath = absolutePath + relativePath;
+
+	return absolutePath;
 }
 
 // -----------------------------------------------------------------------------
@@ -89,7 +113,7 @@ void Sweeper::sweep()
 	DIR *d;
 
 	if ((d = opendir(path.c_str())) == NULL)
-		fatal("Directory could not be opened: %i", errno); // Replace with errno check
+		errorCheck(path);
 
 	// read all the entries in the directory
 	while ((dir = static_cast<Direntry*>(readdir(d))) != NULL)
@@ -113,8 +137,42 @@ FileID Sweeper::getFileID(Direntry *dir)
 
 	// store the file stats in the struct
 	if (lstat(filePath.c_str(), &s) < 0)
-		fatal("Could not get stats on file: %s, Errno: %i", filePath, errno);
+		errorCheck(filePath);
 
 	FileID f(dir->name(), s.st_ino, s.st_size, s.st_nlink);
 	return f;
+}
+
+// Check errno and print a useful comment
+void Sweeper::errorCheck(string failPath)
+{
+	string errorMessage;
+	cout << "Directory or file failed to be read: " << failPath << endl;
+	switch (errno) {
+		case EACCES:
+			errorMessage = "Permission denied.";
+			break;
+		case EIO:
+			errorMessage = "I/O read error.";
+			break;
+		case ELOOP:
+			errorMessage = "Symbolic link loop.";
+			break;
+		case ENAMETOOLONG:
+			errorMessage = "Path name too long.";
+			break;
+		case EOVERFLOW:
+			errorMessage = "File size too large.";
+			break;
+		case EBADF:
+		case ENOENT:
+		case ENOTDIR:
+			errorMessage = "Bad path name.";
+			break;
+		default:
+			errorMessage = "Unknown error.";
+			break;
+	}
+	cout << errorMessage << endl;
+	exit(1);
 }

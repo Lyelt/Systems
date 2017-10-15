@@ -21,8 +21,6 @@ public:
 	Params(int, char**);
 	~Params() {}
 
-	// Params constructor
-	//Params(int argc, char* argv[]);
 };
 
 #endif

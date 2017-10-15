@@ -10,11 +10,12 @@ private:
 	string path;
 	ofstream out;
 	
-	void convertToAbsolute();
+	string convertToAbsolute(string);
 	FileID getFileID(Direntry*);
 	void sweep();
 	void printHeader(ostream&);
 	void printStats(ostream&);
+	void errorCheck(string);
 	
 public:
 	Sweeper(int, char**);
