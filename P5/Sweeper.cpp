@@ -121,8 +121,13 @@ void Sweeper::sweep()
 		if (param->verbose)
 			dir->printVerbose(out);	// Print all the verbose output up front
 
-		if (dir->type() == DT_REG)	// process regular files using FileIDs
-			files.push_back(getFileID(dir));
+		if (dir->type() == DT_REG)
+		{
+			FileID f(getFileID(dir));
+			if (f.fileLen >= param->sizeLimit) // size limit
+				files.push_back(f); // process regular files using FileIDs
+		}
+			
 	}
 	closedir(d);
 }

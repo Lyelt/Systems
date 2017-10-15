@@ -1,0 +1,209 @@
+ls -l output from "TestDir":
+
+total 12
+-rw-r--r-- 1 pi pi  946 Oct 15 21:01 anotherFile
+-rw-r--r-- 1 pi pi   74 Oct 15 21:01 filename.c
+drwxr-xr-x 2 pi pi 4096 Oct 15 17:05 RandomDir
+-rw-r--r-- 2 pi pi    0 Oct 15 17:05 randomfile
+-rw-r--r-- 2 pi pi    0 Oct 15 17:05 ThisIsAHardLink
+lrwxrwxrwx 1 pi pi   10 Oct 15 17:06 ThisIsALink -> randomfile
+
+/////////////////////////////////////////////////////////////////////
+
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 -o output.txt -v 75 TestDir
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:08:23
+--------------------------------------------------------
+Verbose? Yes
+Delete? No
+Debug? No
+Output file name: output.txt
+Size: 75 K or greater
+Directory: TestDir
+------------------------------------------------------
+        file     1203308                    randomfile
+   directory     1203261                             .
+   directory     1203309                     RandomDir
+   directory     1203198                            ..
+        file     1203308               ThisIsAHardLink
+        file     1203327                    filename.c
+        file     1203310                   anotherFile
+        link     1203311                   ThisIsALink
+
+I-Node 1203310 links 1
+	anotherFile
+
+/////////////////////////////////////////////////////////////////////
+
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 -o output.txt -v TestDir
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:08:44
+--------------------------------------------------------
+Verbose? Yes
+Delete? No
+Debug? No
+Output file name: output.txt
+Size: 0 K or greater
+Directory: TestDir
+------------------------------------------------------
+        file     1203308                    randomfile
+   directory     1203261                             .
+   directory     1203309                     RandomDir
+   directory     1203198                            ..
+        file     1203308               ThisIsAHardLink
+        file     1203327                    filename.c
+        file     1203310                   anotherFile
+        link     1203311                   ThisIsALink
+
+I-Node 1203308 links 2
+	randomfile
+	ThisIsAHardLink
+I-Node 1203310 links 1
+	anotherFile
+I-Node 1203327 links 1
+	filename.c
+	
+/////////////////////////////////////////////////////////////////////
+
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 -v --debug=2 TestDir
+
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:10:59
+--------------------------------------------------------
+Verbose? Yes
+Delete? No
+Debug? Yes
+Debug level: 2
+Output file name: None
+Size: 0 K or greater
+Directory: TestDir
+------------------------------------------------------
+        file     1203308                    randomfile
+   directory     1203261                             .
+   directory     1203309                     RandomDir
+   directory     1203198                            ..
+        file     1203308               ThisIsAHardLink
+        file     1203327                    filename.c
+        file     1203310                   anotherFile
+        link     1203311                   ThisIsALink
+
+I-Node 1203308 links 2
+	randomfile
+	ThisIsAHardLink
+I-Node 1203310 links 1
+	anotherFile
+I-Node 1203327 links 1
+	filename.c
+	
+/////////////////////////////////////////////////////////////////////
+
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 -vd -o outputfile.txt ./TestDir
+
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:11:37
+--------------------------------------------------------
+Verbose? Yes
+Delete? Yes
+Debug? No
+Output file name: outputfile.txt
+Size: 0 K or greater
+Directory: ./TestDir
+------------------------------------------------------
+        file     1203308                    randomfile
+   directory     1203261                             .
+   directory     1203309                     RandomDir
+   directory     1203198                            ..
+        file     1203308               ThisIsAHardLink
+        file     1203327                    filename.c
+        file     1203310                   anotherFile
+        link     1203311                   ThisIsALink
+
+I-Node 1203308 links 2
+	randomfile
+	ThisIsAHardLink
+I-Node 1203310 links 1
+	anotherFile
+I-Node 1203327 links 1
+	filename.c
+
+/////////////////////////////////////////////////////////////////////
+	
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 -vd -o outputfile.txt 70 ./TestDir
+
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:12:08
+--------------------------------------------------------
+Verbose? Yes
+Delete? Yes
+Debug? No
+Output file name: outputfile.txt
+Size: 70 K or greater
+Directory: ./TestDir
+------------------------------------------------------
+        file     1203308                    randomfile
+   directory     1203261                             .
+   directory     1203309                     RandomDir
+   directory     1203198                            ..
+        file     1203308               ThisIsAHardLink
+        file     1203327                    filename.c
+        file     1203310                   anotherFile
+        link     1203311                   ThisIsALink
+
+I-Node 1203310 links 1
+	anotherFile
+I-Node 1203327 links 1
+	filename.c
+
+/////////////////////////////////////////////////////////////////////
+	
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 ~/Desktop/Sys/P5/TestDir
+
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:13:18
+--------------------------------------------------------
+Verbose? No
+Delete? No
+Debug? No
+Output file name: None
+Size: 0 K or greater
+Directory: /home/pi/Desktop/Sys/P5/TestDir
+------------------------------------------------------
+
+I-Node 1203308 links 2
+	randomfile
+	ThisIsAHardLink
+I-Node 1203310 links 1
+	anotherFile
+I-Node 1203327 links 1
+	filename.c
+
+/////////////////////////////////////////////////////////////////////
+	
+pi@blueberry:~/Desktop/Sys/P5 $ ./P5 ~/Desktop/Sys/P5/BadDirectory
+
+--------------------------------------------------------
+	Nicholas Ghobrial
+	CSCI 4547
+	Sun Oct 15 2017	21:14:00
+--------------------------------------------------------
+Verbose? No
+Delete? No
+Debug? No
+Output file name: None
+Size: 0 K or greater
+Directory: /home/pi/Desktop/Sys/P5/BadDirectory
+------------------------------------------------------
+Directory or file failed to be read: /home/pi/Desktop/Sys/P5/BadDirectory
+Bad path name.
