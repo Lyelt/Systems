@@ -4,17 +4,20 @@
 #include <dirent.h>
 #include <unistd.h>
 
-class Stats : stat {
+class Stats : public stat {
 private:
 
 public:
+	Stats() {}
+	~Stats() {}
 	ino_t inode() { return st_ino; }
 	off_t size() { return st_size; }
 	nlink_t links() { return st_nlink; }
 
 	void print(ostream& out)
 	{
-		out << inode() << size() << links() << endl;
+		out << "I-node " << inode() << " links " << links() << endl;
+		
 	}
 };
 
@@ -22,29 +25,46 @@ class Direntry : public dirent {
 private:
 
 public:
+	Direntry() {}
+	~Direntry() {}
 	char* name() { return d_name; }
 	ino_t inode() { return d_ino; }
 	__uint8_t type() { return d_type; }
 
-	void print(ostream& out)
+	void printVerbose(ostream& out)
 	{
-		out << name() << inode() << type() << endl;
+		string typeString;
+		switch (type()) {
+			case DT_REG:
+				typeString = "file"; break;
+			case DT_DIR:
+				typeString = "directory"; break;
+			case DT_LNK:
+				typeString = "link"; break;
+			default:
+				typeString = "unknown"; break;
+		}
+		out << setw(12) << typeString << setw(12) << inode() << setw(26) << name() << endl;
+		cout << setw(12) << typeString << setw(12) << inode() << setw(26) << name() << endl;
 	}
 };
 
 class FileID {
-private:
+public:
 	string pathname;
 	ino_t inodeNum;
 	int fileLen;
+	int nLinks;
 
-public:
+
 	FileID() {}
-	FileID(string name, ino_t num, int len)
+	~FileID() {}
+	FileID(string name, ino_t num, int len, int links)
 	{
 		pathname = name;
 		inodeNum = num;
 		fileLen = len;
+		nLinks = links;
 	}
 
 	static bool inodeCompare(ino_t node1, ino_t node2) { return (node1 < node2); }
@@ -54,8 +74,6 @@ public:
 
 class Params {
 public:
-//private:
-	//ofstream out;
 	string directory = "";
 	string outputFileName = "";
 	bool verbose = false;
@@ -65,7 +83,6 @@ public:
 	int levelNum = 0;
 	int sizeLimit = 0;
 
-//public:
 	Params(int, char*);
 	~Params() {}
 
@@ -93,7 +110,6 @@ public:
 			case 'o':
 				outputFile = true;
 				outputFileName = optarg;
-				//out.open(optarg);
 				break;
 			case 'd':
 				deleteFile = true;
@@ -156,6 +172,7 @@ public:
 class Sweeper {
 private:
 	Params* param;
+	vector<FileID> files;
 	string path;
 	ofstream out;
 
@@ -177,11 +194,16 @@ public:
 		if (param->outputFile)
 			out.open(param->outputFileName);
 
+		fbanner(out);
 		path = param->directory;
 		convertToAbsolute();
-
+		
+		if (param->outputFile)
+			printHeader(out);
+		printHeader(cout);
+		
+		sweep();
 		print();
-		Sweep();
 		delete param;
 	}
 
@@ -197,37 +219,53 @@ public:
 		}
 	}
 
-	void Sweep()
+	void sweep()
 	{
 		Direntry *dir;
 		DIR *d;
-		vector<FileID> files;
 
 		if ((d = opendir(path.c_str())) == NULL)
-			fatal("Directory could not be opened."); // Replace with errno check
+			fatal("Directory could not be opened: %i", errno); // Replace with errno check
 
-		fbanner(out);
-		while ((dir = readdir(d)) != NULL)
+		// read all the entries in the directory
+		while ((dir = static_cast<Direntry*>(readdir(d))) != NULL)
 		{
-			dir->print(out);
-		}
+			if (param->verbose)
+				dir->printVerbose(out);
 
+			if (dir->type() == DT_REG)	// process regular files using FileIDs
+				files.push_back(getFileID(dir));
+		}
 		closedir(d);
+	}
+
+	FileID getFileID(Direntry *dir)
+	{
+		// the absolute path of the file
+		string filePath = path + "/" + dir->name();
+		//Stats stats;
+		struct stat s;
+
+		// store the file stats in the struct
+		if (lstat(filePath.c_str(), &s) < 0)
+			fatal("Could not get stats on file: %s, Errno: %i", filePath, errno);
+
+		FileID f(dir->name(), s.st_ino, s.st_size, s.st_nlink);
+		return f;
 	}
 
 	// Wrapper for printing to both file and cout
 	void print()
 	{
 		if (param->outputFile)
-		{
-			//fbanner(out);
-			printOut(out);
-			out.close();
-		}
-		printOut(cout);
+			printStats(out);
+
+		printStats(cout);
+
+		out.close();
 	}
 
-	void printOut(ostream& outstream)
+	void printHeader(ostream& outstream)
 	{
 		outstream << "Verbose? " << (param->verbose ? "Yes" : "No") << endl;
 		outstream << "Delete? " << (param->deleteFile ? "Yes" : "No") << endl;
@@ -237,6 +275,18 @@ public:
 		outstream << "Output file name: " << (param->outputFile ? param->outputFileName : "None") << endl;
 		outstream << "Size: " << param->sizeLimit << " K or greater" << endl;
 		outstream << "Directory: " << param->directory << endl;
+		outstream << "-------------------------------------------------------" << endl;
+	}
+
+	void printStats(ostream& outstream)
+	{
+		//outstream << "Regular files: " << files.size() << endl;
+		outstream << endl;
+		for (int i = 0; i < files.size(); ++i)
+		{
+			outstream << "I-Node " << files[i].inodeNum << " links " << files[i].nLinks << endl;
+			outstream << "\t" << files[i].pathname << endl;
+		}
 	}
 };
 
