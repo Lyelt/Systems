@@ -1,0 +1,132 @@
+1a. gcc (Raspbian 6.3.0-18+rpi1) 6.3.0 20170516
+Copyright (C) 2016 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+1b. g++ (Raspbian 6.3.0-18+rpi1) 6.3.0 20170516
+Copyright (C) 2016 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+gcc and g++ are being used on my system.
+---------------------------------------------------------------------------
+
+2a. badCode.cpp: In function ‘int main(int, const char**)’:
+badCode.cpp:22:13: warning: value computed is not used [-Wunused-value]
+     sin(20) + sin(15);
+     ~~~~~~~~^~~~~~~~~
+badCode.cpp:15:21: warning: unused variable ‘n’ [-Wunused-variable]
+     short int k, m, n;
+                     ^
+2b. No output
+
+Compiling with warnings on means that all warnings will be displayed to the user.
+I would much prefer warnings to be shown to me so that I know what I can fix and optimize in  my code,
+as warnings are never good (even if the program works).
+---------------------------------------------------------------------------
+
+
+3a. badCode.c: In function ‘main’:
+badCode.c:10:18: warning: implicit declaration of function ‘sin’ [-Wimplicit-function-declaration]
+     double dbl = sin(15);
+                  ^~~
+badCode.c:10:18: warning: incompatible implicit declaration of built-in function ‘sin’
+badCode.c:10:18: note: include ‘<math.h>’ or provide a declaration of ‘sin’
+badCode.c:7:27: warning: format ‘%g’ expects argument of type ‘double’, but argument 2 has type ‘long int’ [-Wformat=]
+ #define print( p ) printf("p= %g\n", p)
+                           ^
+badCode.c:17:5: note: in expansion of macro ‘print’
+     print( lint );
+     ^~~~~
+badCode.c:18:17: warning: format ‘%u’ expects argument of type ‘unsigned int’, but argument 2 has type ‘double’ [-Wformat=]
+     printf( "k=%u  m=%li\n", dbl, lint, k, m );
+                 ^
+badCode.c:18:13: warning: too many arguments for format [-Wformat-extra-args]
+     printf( "k=%u  m=%li\n", dbl, lint, k, m );
+             ^~~~~~~~~~~~~~~
+badCode.c:12:21: warning: unused variable ‘n’ [-Wunused-variable]
+     short int k, m, n;
+                     ^
+
+3b. badCode.cpp: In function ‘int main(int, const char**)’:
+badCode.cpp:22:13: warning: value computed is not used [-Wunused-value]
+     sin(20) + sin(15);
+     ~~~~~~~~^~~~~~~~~
+badCode.cpp:15:21: warning: unused variable ‘n’ [-Wunused-variable]
+     short int k, m, n;
+                     ^
+The -Wall switch includes all warnings produced, as opposed to suppressing them all and
+assuming that the programmer is aware of the warnings and the possible consequences of
+the flawed code.
+-------------------------------------------------------------------------------
+4a. badCode.c: In function ‘main’:
+badCode.c:10:18: warning: implicit declaration of function ‘sin’ [-Wimplicit-function-declaration]
+     double dbl = sin(15);
+                  ^~~
+badCode.c:10:18: warning: incompatible implicit declaration of built-in function ‘sin’
+badCode.c:10:18: note: include ‘<math.h>’ or provide a declaration of ‘sin’
+
+the executable file a.out produces the following output:
+p= 0.650288
+p= 4.94066e-324
+k=0  m=1909375720
+
+4b. No output
+the executable file a.out produces the following output:
+0.650288
+-1
+k=0  m=8
+-------------------------------------------------------------------------------
+
+5a. badCode.c: In function ‘main’:
+badCode.c:10:18: warning: implicit declaration of function ‘sin’ [-Wimplicit-function-declaration]
+     double dbl = sin(15);
+                  ^~~
+badCode.c:10:18: warning: incompatible implicit declaration of built-in function ‘sin’
+badCode.c:10:18: note: include ‘<math.h>’ or provide a declaration of ‘sin’
+badCode.c:7:27: warning: format ‘%g’ expects argument of type ‘double’, but argument 2 has type ‘long int’ [-Wformat=]
+ #define print( p ) printf("p= %g\n", p)
+                           ^
+badCode.c:17:5: note: in expansion of macro ‘print’
+     print( lint );
+     ^~~~~
+badCode.c:18:17: warning: format ‘%u’ expects argument of type ‘unsigned int’, but argument 2 has type ‘double’ [-Wformat=]
+     printf( "k=%u  m=%li\n", dbl, lint, k, m );
+                 ^
+badCode.c:18:13: warning: too many arguments for format [-Wformat-extra-args]
+     printf( "k=%u  m=%li\n", dbl, lint, k, m );
+             ^~~~~~~~~~~~~~~
+badCode.c:12:21: warning: unused variable ‘n’ [-Wunused-variable]
+     short int k, m, n;
+                     ^
+5b. badCode.c: In function ‘main’:
+badCode.c:10:18: warning: implicit declaration of function ‘sin’ [-Wimplicit-function-declaration]
+     double dbl = sin(15);
+                  ^~~
+badCode.c:10:18: warning: incompatible implicit declaration of built-in function ‘sin’
+badCode.c:10:18: note: include ‘<math.h>’ or provide a declaration of ‘sin’
+badCode.c:7:27: warning: format ‘%g’ expects argument of type ‘double’, but argument 2 has type ‘long int’ [-Wformat=]
+ #define print( p ) printf("p= %g\n", p)
+                           ^
+badCode.c:17:5: note: in expansion of macro ‘print’
+     print( lint );
+     ^~~~~
+badCode.c:18:17: warning: format ‘%u’ expects argument of type ‘unsigned int’, but argument 2 has type ‘double’ [-Wformat=]
+     printf( "k=%u  m=%li\n", dbl, lint, k, m );
+                 ^
+badCode.c:18:13: warning: too many arguments for format [-Wformat-extra-args]
+     printf( "k=%u  m=%li\n", dbl, lint, k, m );
+             ^~~~~~~~~~~~~~~
+badCode.c:12:21: warning: unused variable ‘n’ [-Wunused-variable]
+     short int k, m, n;
+                     ^
+In the optimized version of the code, the offsets of the frame pointer seem to have been eliminated
+and replaced with just manipulating the stack pointer directly through various registers.
+-------------------------------------------------------------------------
+6a. No output
+6b. No output
+
+The preprocessor takes care of the preprocessor directives, like #include and #define.
+Interestingly, the preprocessed file in C++ is absolutely massive compared to the C file,
+which leads me to believe that the namespace std, iostream, and cmath is included in the preprocessed file,
+and is much larger than stdio.h included in the C code.
