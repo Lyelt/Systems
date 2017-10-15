@@ -3,14 +3,15 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-
+// -----------------------------------------------------------------------------
+// Stats functions
 void Stats::print(ostream& out)
 {
 	out << "I-node " << inode() << " links " << links() << endl;	
 }
 
 // -------------------------------------------------------------------
-
+// Direntry functions
 void Direntry::printVerbose(ostream& out)
 {
 	string typeString;
@@ -24,15 +25,15 @@ void Direntry::printVerbose(ostream& out)
 		default:
 			typeString = "unknown"; break;
 	}
-	out << setw(12) << typeString << setw(12) << inode() << setw(26) << name() << endl;
-	cout << setw(12) << typeString << setw(12) << inode() << setw(26) << name() << endl;
+	out << setw(12) << typeString << setw(12) << inode() << setw(30) << name() << endl;
+	cout << setw(12) << typeString << setw(12) << inode() << setw(30) << name() << endl;
 }
 
 // -------------------------------------------------------------------
-
+// FileID functions
 FileID::FileID(string name, ino_t num, int len, int links)
 {
-	pathname = name;
+	pathName = name;
 	inodeNum = num;
 	fileLen = len;
 	nLinks = links;

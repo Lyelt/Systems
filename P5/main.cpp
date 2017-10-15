@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 {
 	banner();
 	Sweeper *s = new Sweeper(argc, argv);
-	s->Run();
+	s->run();
 	delete s;
 
 	return 0;

@@ -11,18 +11,16 @@ private:
 	ofstream out;
 	
 	void convertToAbsolute();
-	FileID getFileID(Direntry *dir);
+	FileID getFileID(Direntry*);
+	void sweep();
+	void printHeader(ostream&);
+	void printStats(ostream&);
 	
 public:
 	Sweeper(int, char**);
 	~Sweeper() {}
 
-	void Run();
-	void sweep();
-
-	void print();
-	void printHeader(ostream& outstream);
-	void printStats(ostream& outstream);
+	void run();
 };
 
 #endif

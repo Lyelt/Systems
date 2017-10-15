@@ -5,8 +5,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-
-//Sweeper constructor
+// -----------------------------------------------------------------------------
+// Sweeper constructor
 Sweeper::Sweeper(int argc, char* argv[])
 {
 	if (argc < 2)
@@ -14,24 +14,61 @@ Sweeper::Sweeper(int argc, char* argv[])
 	param = new Params(argc, argv);
 }
 
-void Sweeper::Run()
+// -----------------------------------------------------------------------------
+// Print some output and run the actual sweep
+void Sweeper::run()
 {	
 	if (param->outputFile)
 		out.open(param->outputFileName);
 
 	fbanner(out);
+	
+	// normalize the pathname
 	path = param->directory;
 	convertToAbsolute();
-		
+	
+	// print some header info
 	if (param->outputFile)
 		printHeader(out);
 	printHeader(cout);
 		
-	sweep();
-	print();
+	sweep(); // the actual sweep
+	
+	// print the file stat info
+	if (param->outputFile)
+		printStats(out);
+	printStats(cout);
+	out.close();
 	delete param;
 }
+// -----------------------------------------------------------------------------
+// Echo command line args
+void Sweeper::printHeader(ostream& outstream)
+{
+	outstream << "Verbose? " << (param->verbose ? "Yes" : "No") << endl;
+	outstream << "Delete? " << (param->deleteFile ? "Yes" : "No") << endl;
+	outstream << "Debug? " << (param->debug ? "Yes" : "No") << endl;
+	if (param->debug)
+		outstream << "Debug level: " << param->levelNum << endl;
+	outstream << "Output file name: " << (param->outputFile ? param->outputFileName : "None") << endl;
+	outstream << "Size: " << param->sizeLimit << " K or greater" << endl;
+	outstream << "Directory: " << param->directory << endl;
+	outstream << "------------------------------------------------------" << endl;
+}
+// Print stats for all output
+void Sweeper::printStats(ostream& outstream)
+{
+	//outstream << "Regular files: " << files.size() << endl;
+	outstream << endl;
+	for (int i = 0; i < files.size(); ++i)
+	{
+		outstream << "I-Node " << files[i].inodeNum << " links " << files[i].nLinks << endl;
+		outstream << "\t" << files[i].pathName << endl;
+	}
+}
 
+// -----------------------------------------------------------------------------
+// Convert to absolute file path
 void Sweeper::convertToAbsolute()
 {
 	if (path.substr(0, 2).compare("./") == 0)
@@ -44,6 +81,8 @@ void Sweeper::convertToAbsolute()
 	}
 }
 
+// -----------------------------------------------------------------------------
+// Open, read, and process the directory entries
 void Sweeper::sweep()
 {
 	Direntry *dir;
@@ -56,7 +95,7 @@ void Sweeper::sweep()
 	while ((dir = static_cast<Direntry*>(readdir(d))) != NULL)
 	{
 		if (param->verbose)
-			dir->printVerbose(out);
+			dir->printVerbose(out);	// Print all the verbose output up front
 
 		if (dir->type() == DT_REG)	// process regular files using FileIDs
 			files.push_back(getFileID(dir));
@@ -64,6 +103,7 @@ void Sweeper::sweep()
 	closedir(d);
 }
 
+// Construct the file ID using lstat info of the object
 FileID Sweeper::getFileID(Direntry *dir)
 {
 	// the absolute path of the file
@@ -77,39 +117,4 @@ FileID Sweeper::getFileID(Direntry *dir)
 
 	FileID f(dir->name(), s.st_ino, s.st_size, s.st_nlink);
 	return f;
-}
-
-// Wrapper for printing to both file and cout
-void Sweeper::print()
-{
-	if (param->outputFile)
-		printStats(out);
-
-	printStats(cout);
-
-	out.close();
-}
-
-void Sweeper::printHeader(ostream& outstream)
-{
-	outstream << "Verbose? " << (param->verbose ? "Yes" : "No") << endl;
-	outstream << "Delete? " << (param->deleteFile ? "Yes" : "No") << endl;
-	outstream << "Debug? " << (param->debug ? "Yes" : "No") << endl;
-	if (param->debug)
-		outstream << "Debug level: " << param->levelNum << endl;
-	outstream << "Output file name: " << (param->outputFile ? param->outputFileName : "None") << endl;
-	outstream << "Size: " << param->sizeLimit << " K or greater" << endl;
-	outstream << "Directory: " << param->directory << endl;
-	outstream << "-------------------------------------------------------" << endl;
-}
-
-void Sweeper::printStats(ostream& outstream)
-{
-	//outstream << "Regular files: " << files.size() << endl;
-	outstream << endl;
-	for (int i = 0; i < files.size(); ++i)
-	{
-		outstream << "I-Node " << files[i].inodeNum << " links " << files[i].nLinks << endl;
-		outstream << "\t" << files[i].pathname << endl;
-	}
 }
