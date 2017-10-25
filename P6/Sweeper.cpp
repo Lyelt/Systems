@@ -115,8 +115,6 @@ void Sweeper::travel(string pathName, string currentDir)
 	if ((d = opendir(pathName.c_str())) == NULL)
 		errorCheck(pathName);
 	
-	//chdir(pathName.c_str());
-	
 	// read all the entries in the directory
 	while ((dir = static_cast<Direntry*>(readdir(d))) != NULL)
 	{
@@ -126,15 +124,12 @@ void Sweeper::travel(string pathName, string currentDir)
 		if (dir->type() == DT_DIR)
 		{
 			string dirName = dir->name();
-			// ignore . and ..
 			
+			// ignore . and ..
 			if (dirName.substr(0, 1).compare(".") == 0)
 				continue;
 			
-			string move = pathName + "/" + dirName;
-			cout << "About to travel to: " << move << endl;
-			travel(move, dirName);
-			//chdir("..");
+			travel(pathName + "/" + dirName, dirName);
 		}
 		else //if (dir->type() == DT_REG)
 		{
@@ -147,6 +142,7 @@ void Sweeper::travel(string pathName, string currentDir)
 	closedir(d);
 }
 
+// -----------------------------------------------------------------------------
 // Construct the file ID using lstat info of the object
 FileID Sweeper::getFileID(Direntry *dir, string currentPath)
 {
@@ -163,6 +159,7 @@ FileID Sweeper::getFileID(Direntry *dir, string currentPath)
 	return f;
 }
 
+// -----------------------------------------------------------------------------
 // Check errno and print a useful comment
 void Sweeper::errorCheck(string failPath)
 {
