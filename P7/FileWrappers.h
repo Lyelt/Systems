@@ -1,8 +1,8 @@
-#define SHA_DIGEST_LENGTH 100
 #ifndef FILEWRAPPERS_H
 #define FILEWRAPPERS_H
 #include <dirent.h>
 #include <sys/stat.h>
+#include <openssl/sha.h>
 
 // -----------------------------------------------------------------------------
 // Stats class
@@ -32,20 +32,26 @@ public:
 class FileID {
 public:
 	string pathName;
+	string absolutePath;
 	ino_t inodeNum;
 	int fileLen;
 	int nLinks;
-	unsigned char fingerprint[SHA_DIGEST_LENGTH];
+	unsigned char fingerprint[SHA_DIGEST_LENGTH] = {0};
 
 	FileID() {}
 	~FileID() {}
-	FileID(string, ino_t, int, int);
+	FileID(string, string, ino_t, int, int);
 	
-	void calculateSHA256();
+	void calculateSHA256(/*string*/);
 
-	static bool byInode(ino_t node1, ino_t node2) { return (node1 < node2); }
+	static bool byInode(FileID file1, FileID file2) { return (file1.inodeNum < file2.inodeNum); }
 	static bool bySize(FileID file1, FileID file2) { return (file1.fileLen < file2.fileLen); }
-	//static bool byFprint(unsigned char fp1[], unsigned char fp2[]) { return (fp1 < fp2); }
+	static bool byFprint(FileID file1, FileID file2) 
+	{ 
+		for (int k = 0; k < SHA_DIGEST_LENGTH; ++k) 
+			if (file1.fingerprint[k] != file2.fingerprint[k])
+				return file1.fingerprint[k] < file2.fingerprint[k];
+	}
 };
 
 #endif

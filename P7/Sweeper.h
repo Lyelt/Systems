@@ -21,8 +21,7 @@ private:
 	// --- Duplicate checking
 	void reportDups();
 	void checkDups();
-	void dupLoop();
-	bool areDups(string, string);
+	bool areEqual(unsigned char*, unsigned char*);
 	// --- Print handlers
 	void printHeader(ostream&);
 	void printStats(ostream&);

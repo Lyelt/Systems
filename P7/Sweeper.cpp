@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <map>
+#include <openssl/sha.h>
 // -----------------------------------------------------------------------------
 // Sweeper constructor
 Sweeper::Sweeper(int argc, char* argv[])
@@ -35,7 +36,6 @@ void Sweeper::run()
 
 	// begin at the given sweep directory
 	travel(absolutePath, relativePath);
-	reportDups();
 	
 	// print the file stat info
 	if (param->outputFile)
@@ -43,8 +43,10 @@ void Sweeper::run()
 		printStats(out);
 		out.close();
 	}
-
 	printStats(cout);
+	
+	reportDups();
+	
 	delete param;
 }
 
@@ -160,7 +162,7 @@ FileID Sweeper::getFileID(Direntry *dir, string currentPath)
 	if (lstat(filePath.c_str(), &s) < 0)
 		errorCheck(filePath);
 
-	FileID f(dir->name(), s.st_ino, s.st_size, s.st_nlink);
+	FileID f(dir->name(), filePath, s.st_ino, s.st_size, s.st_nlink);
 	return f;
 }
 
@@ -169,40 +171,93 @@ FileID Sweeper::getFileID(Direntry *dir, string currentPath)
 void Sweeper::reportDups()
 {
 	// Sort by size
-	start = end = files.begin();
+	start = files.begin();
+	end = files.end();
 	stable_sort(start, end, FileID::bySize);
-	
+	end = start;
+	cout << "-----------" << endl;
+	cout << "Processing " << files.size() << " files for duplicates." << endl;
 	while (start != files.end())
 	{
-		dupLoop();
-		start = end; // done with this group of files
-		
+		// Increment end iterator until a filesize differs
+		for (;; end++)
+			if ((*end).fileLen != (*start).fileLen || end == files.end())
+				break;
+		// end points to first file of differing size
 		if (end - start > 1)
+		{
+			cout << "---- Start of block ----" << endl;
+			cout << end - start << " files with same size: " << (*start).fileLen << endl;
+			/*for (vector<FileID>::iterator block = start; block < end; block++)
+			{
+				cout << (*block).pathName << " : " << (*block).inodeNum << " : " << (*block).fileLen << endl; 
+			}*/
+			cout << "Now checking that block for duplicates." << endl;
 			checkDups();	// check for duplicate files
-	}
-}
-
-// Increment end iterator until a filesize differs
-void Sweeper::dupLoop()
-{
-	for (;; end++)
-	{
-		if ((*end).fileLen != (*start).fileLen || end == files.end())
-			break;
+		}
+		start = end; // done with this group of files
 	}
 }
 
 // -----------------------------------------------------------------------------
-// 
+// Check if the current block of files contains duplicates
 void Sweeper::checkDups()
 {
+	bool matchingInodes = true;
+	vector<FileID>::iterator block;
+	// check for duplicate inode numbers first
+	for (block = start; block < end; block++)
+		if ((*block).inodeNum != (*next(block)).inodeNum)
+		{
+			//cout << "File " << (*block).pathName << " with inode " << (*block).inodeNum << " did not match file " << (*next(block)).pathName << " with inode " << (*next(block)).inodeNum << endl;
+			// if any inode numbers don't match, it's not a dup
+			matchingInodes = false;
+			break;
+		}
 	
+	if (matchingInodes)
+	{
+		cout << "All inodes in this block were same. They are links." << endl;
+		for (block = start; block < end; block++)
+			cout << "Link: " << (*block).pathName << endl;
+	}
+	else
+	{
+		cout << "Some inodes were different, checking fingerprints." << endl;
+		for (block = start; block < end; block++)
+		{
+			cout << "Checking " << (*block).pathName << endl;
+			//(*block).calculateSHA256();
+		}
+		cout << "Fingerprints calculated." << endl;
+		stable_sort(start, end, FileID::byFprint);
+		cout << "Fingerprints sorted. Comparing fingerprints." << endl;
+		vector<FileID>::iterator duplicate = start;
+		for (block = start; block < end; block++)
+		{
+			if (!areEqual((*block).fingerprint, (*next(block)).fingerprint))
+			{
+				cout << "---Dups---" << endl;
+				// Control break because we found fingerprints that don't match
+				for (; duplicate < block; duplicate++)
+				{
+					cout << (*duplicate).pathName << " " << (*duplicate).inodeNum << endl;
+				}
+				duplicate = block;
+			}
+		}
+		cout << "---- End of block ----" << endl;
+	}
 }
 
-// 
-bool Sweeper::areDups(string filePath1, string filePath2)
+bool Sweeper::areEqual(unsigned char* fp1, unsigned char* fp2)
 {
-	
+	for(int k = 0; k < SHA_DIGEST_LENGTH; ++k)
+	{
+		if (fp1[k] != fp2[k]) return false;
+	}
+
+	return true;
 }
 
 // -----------------------------------------------------------------------------
