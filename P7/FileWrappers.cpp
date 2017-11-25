@@ -4,7 +4,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <openssl/sha.h>
-#define BUFSIZE 4096
+#define BUFSIZE 8192
 // -----------------------------------------------------------------------------
 // Stats functions
 void Stats::print(ostream& out)
@@ -42,14 +42,13 @@ FileID::FileID(string name, string abs, ino_t num, int len, int links)
 	nLinks = links;
 }
 
-void FileID::calculateSHA256(/*string file*/)
+void FileID::calculateSHA256()
 {
 	// Setup =============================================================
-    // (argc!=2) fatal("usage: $s fname", argv[0]);
     string file = this->absolutePath;
     ifstream in (file);
     if (!in) fatal("can't open %s for reading", file);
-    
+
     SHA_CTX ctx;   // A structure of state info used in computing SHA.
     if (!SHA1_Init(&ctx)) fatal("SHA1_Init failure");
     
@@ -64,14 +63,8 @@ void FileID::calculateSHA256(/*string file*/)
         if (!SHA1_Update( &ctx, buf, bytes_read) ) fatal("SHA1_Update failure");
     }
     
-    unsigned char md[SHA_DIGEST_LENGTH];
     // Terminate SHA algorithm and extract the answer from the context. 
-    if (!SHA1_Final(md, &ctx)) fatal("SHA1_Final failure");
-	strcpy((char*)this->fingerprint, (char*)md);
-    //return md;
-    /*cout <<"The SHA1 message digest is: ";
-    for (int k=0; k<SHA_DIGEST_LENGTH; k++) {
-        cout <<hex <<setfill('0') <<setw(2) <<(int)md[k];
-    }
-    cout <<"\n\n" <<dec;*/
+    if (!SHA1_Final(this->fingerprint, &ctx)) fatal("SHA1_Final failure");
+	
+	
 }

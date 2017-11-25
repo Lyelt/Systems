@@ -185,16 +185,8 @@ void Sweeper::reportDups()
 				break;
 		// end points to first file of differing size
 		if (end - start > 1)
-		{
-			cout << "---- Start of block ----" << endl;
-			cout << end - start << " files with same size: " << (*start).fileLen << endl;
-			/*for (vector<FileID>::iterator block = start; block < end; block++)
-			{
-				cout << (*block).pathName << " : " << (*block).inodeNum << " : " << (*block).fileLen << endl; 
-			}*/
-			cout << "Now checking that block for duplicates." << endl;
 			checkDups();	// check for duplicate files
-		}
+		
 		start = end; // done with this group of files
 	}
 }
@@ -207,13 +199,14 @@ void Sweeper::checkDups()
 	vector<FileID>::iterator block;
 	// check for duplicate inode numbers first
 	for (block = start; block < end; block++)
+	{
 		if ((*block).inodeNum != (*next(block)).inodeNum)
 		{
-			//cout << "File " << (*block).pathName << " with inode " << (*block).inodeNum << " did not match file " << (*next(block)).pathName << " with inode " << (*next(block)).inodeNum << endl;
-			// if any inode numbers don't match, it's not a dup
+			// if any inode numbers don't match, we check fingerprints
 			matchingInodes = false;
 			break;
 		}
+	}
 	
 	if (matchingInodes)
 	{
@@ -223,33 +216,37 @@ void Sweeper::checkDups()
 	}
 	else
 	{
-		cout << "Some inodes were different, checking fingerprints." << endl;
+		cout << "Some inodes were different, checking fingerprints.";
 		for (block = start; block < end; block++)
 		{
-			cout << "Checking " << (*block).pathName << endl;
-			//(*block).calculateSHA256();
+			(*block).calculateSHA256();
+			cout <<"\nThe SHA1 message digest of " << (*block).pathName << " is: ";
+			for (int k=0; k<SHA_DIGEST_LENGTH; k++)
+				cout <<hex <<setfill('0') <<setw(2) <<(int)(*block).fingerprint[k];
 		}
-		cout << "Fingerprints calculated." << endl;
+	
 		stable_sort(start, end, FileID::byFprint);
-		cout << "Fingerprints sorted. Comparing fingerprints." << endl;
-		vector<FileID>::iterator duplicate = start;
+		cout << "\nFingerprints sorted. Comparing fingerprints." << endl;
+		
+		vector<FileID>::iterator duplicate = start; // Iterator for printing blocks of duplicates
 		for (block = start; block < end; block++)
 		{
 			if (!areEqual((*block).fingerprint, (*next(block)).fingerprint))
 			{
-				cout << "---Dups---" << endl;
+				cout << "\n---Duplicates---" << endl;
 				// Control break because we found fingerprints that don't match
 				for (; duplicate < block; duplicate++)
 				{
-					cout << (*duplicate).pathName << " " << (*duplicate).inodeNum << endl;
+					cout << dec << (*duplicate).pathName << " " << (*duplicate).inodeNum << endl;
 				}
 				duplicate = block;
+				cout << "---End Duplicates---\n" << endl;
 			}
 		}
-		cout << "---- End of block ----" << endl;
 	}
 }
 
+// Test if two byte arrays are equal
 bool Sweeper::areEqual(unsigned char* fp1, unsigned char* fp2)
 {
 	for(int k = 0; k < SHA_DIGEST_LENGTH; ++k)
