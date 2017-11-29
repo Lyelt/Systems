@@ -1,71 +1,76 @@
-//                    -*- mode:c++; tab-width:4 -*-
-// modified September 2011
-// file: tools.hpp -----------------------------------------------------------
-// header file for the tools library.
-// ---------------------------------------------------------------------------
-// Local definitions and portability code.
-// Please enter your own system, name, class, and printer stream name.
-// ---------------------------------------------------------------------------
+//     -*- mode:c++; tab-width:4 -*-
+// file: tools.hpp ----------------------------------------------------
+// header file for the C++ tools library.
+// modified September 2009
+
 #pragma once
+
+// -------------------------------------------------------------------
+// Local definitions.
+// Please enter your own name.
+// -------------------------------------------------------------------
 #define NAME    "Nicholas Ghobrial"
-#define CLASS   "CSCI 4547"
+#define CLASS   "Systems Programming"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <vector>
-#include <string>
-#include <algorithm>
 #include <limits>
 
 #include <cstdio>      // for NULL
 #include <cstdlib>     // for malloc() and calloc()
-#include <cstring>
+#include <cstring>     // for time_t, time() and ctime()
 #include <cmath>
 #include <ctime>
 #include <cctype>      // for isspace() and isdigit()
 #include <cstdarg>     // for functions with variable # of arguments
+#include <cerrno>
+
+#include <unistd.h>
+//#include <sys/types.h>
+//#include <sys/dir.h>
+//#include <sys/stat.h>
+//#include <sys/socket.h>
+//#include <netinet/in.h>
 
 using namespace std;
 
-// ---------------------------------------------------------------------------
-// Macros for debugging.
-// ---------------------------------------------------------------------------
-#define DUMPp(p) "\n" <<"    " #p " @ " <<&p <<"    value = " <<p <<"    " #p " --> " <<*p
-#define DUMPv(k) "\n" <<"    " #k " @ " <<&k <<"    value = " <<k
+typedef char* cstring;
+typedef const char* const_cstring;
+typedef FILE* cstream;
 
-// ---------------------------------------------------------------------------
-// I/O Extension. ------------------------------------------------------------
-// ---------------------------------------------------------------------------
-istream& cleanline( istream& is );     // discards remainder of line
-istream& flush( istream& is );         // Use: cin >> x >> flush;
-ostream& general( ostream& os );       // Use: cout <<fixed <<x <<general <<y;
+// -------------------------------------------------------------------
+// Macros to make more convenient use of standard library functions.
+// -------------------------------------------------------------------
+#define DUMPp(p) "\n"<<hex<<"   " #p " @ "<<(unsigned)&p<<"   value = "<<(unsigned)p<<"   " #p " --> "<<dec<<*p
+#define DUMPv(k) "\n"<<hex<<"   " #k " @ "<<(unsigned)&k<<"   value = "<<dec<<k
 
-// ---------------------------------------------------------------------------
-// Routine screen and process management.-------------------------------------
-// ---------------------------------------------------------------------------
+// -------------------------------------------------------------------
+// Routine screen and process management.-----------------------------
+// -------------------------------------------------------------------
 void     fbanner( ostream& fout );
-void     banner();
+#define  banner()  fbanner( cout )
 void     bye( void );
-void     hold( void );
-void	 delay( int seconds );
-void     say( const char* format, ... );
+void     say( const_cstring format, ... );
+void     delay( int );
 
-// ---------------------------------------------------------------------------
-// Error handling. -----------------------------------------------------------
-// ---------------------------------------------------------------------------
-void    fatal( const char* format, ... );
+// -------------------------------------------------------------------
+// I/O Extension. ----------------------------------------------------
+// -------------------------------------------------------------------
+istream&  cleanline( istream& is ); // discards remainder of line
+istream&  flush( istream& is );     // Used in cin >>x >>flush;
 
-// ---------------------------------------------------------------------------
-// time and date. -------------------------------------------------------------
-// ---------------------------------------------------------------------------
-void   when( char* date, char* hour );
-char*  today( char* date );
-char*  oclock( char* hour );
+// -------------------------------------------------------------------
+// Error handling. ---------------------------------------------------
+// -------------------------------------------------------------------
+void    fatal( const_cstring format, ... );
+void    fatalp( const_cstring format, ... );
+void    sayp (const_cstring format, ...);
 
-// ---------------------------------------------------------------------------
-// Menu handling.
-// ---------------------------------------------------------------------------
-int    menu( char* title, int n, const char* menu[] );
-char   menu_c( char* title, int n, const char* menu[], char* valid );
+// -------------------------------------------------------------------
+// Time and date. ----------------------------------------------------
+// -------------------------------------------------------------------
+void     when( cstring date, cstring hour );
+cstring  today( cstring date );
+cstring  oclock( cstring hour );

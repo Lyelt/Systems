@@ -13,8 +13,8 @@ class Job
 		Job() {}
 		Job(short, short, short);
 		
-		setKidId(int);
-		print(ostream& out);
+		void setKidId(int);
+		void print(ostream& out);
 		
-}
+};
 #endif
