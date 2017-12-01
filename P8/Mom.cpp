@@ -4,6 +4,7 @@
 #include "Job.h"
 #include <vector>
 #define MAXCLIENTS 4				// Unrealistically small, for testing.
+#define MAXJOBS 10
 typedef struct pollfd    toPoll;
 vector<Job> jobTable;
 vector<Job> doneJobs;
@@ -12,13 +13,35 @@ int doWelcome(int, int*, toPoll*, const char*);
 int doService(toPoll*);
 int getPort(int);
 void printsockaddr_in(const char*, sockaddr_in);
+void createJobs();
+void initializeSocket();
+void acknowledge(int, toPoll*);
 		
 int main(int argc, char *argv[]) {
-    const char* proc = argv[0];
+    //const char* proc = argv[0];
     //if (argc<2) fatal("usage: %s port\n", proc);
 	banner();
-	
-    int port = 15000;//strtol(argv[1], NULL, 10);
+	createJobs();
+	initializeSocket();
+}
+
+void createJobs()
+{
+	srand(time(NULL));
+	for(int i=0; i<MAXJOBS; ++i)
+	{
+		short speed = rand() % 5 + 1;
+		short fun = rand() % 5 + 1;
+		short diff = rand() % 5 + 1;
+		
+		Job job(speed, fun, diff);
+		jobTable.push_back(job);
+	}
+}
+
+void initializeSocket()
+{
+	int port = 15000;//strtol(argv[1], NULL, 10);
     char hostname[256];					// to store name of local host.
     gethostname(hostname, 256);			// get name of local host.
     say("server is %s", hostname);
@@ -55,8 +78,14 @@ int main(int argc, char *argv[]) {
 	for (;;) {
         if (welcome->revents != 0 )	{
             if (welcome->revents & POLLIN)	{
-                if (nCli < MAXCLIENTS) // create a new client connection.
-                    nCli += doWelcome(welcomeFd, &nCli, worker, greeting);
+				// create a new client connection. 
+                if (nCli < MAXCLIENTS) {
+					int newWorker = doWelcome(welcomeFd, &nCli, worker, greeting);
+					if (newWorker > 0) {
+						acknowledge(nCli, worker);
+						nCli += newWorker;
+					}
+				}
             }
             else fatalp("Error involving welcome mat: %d", welcome->revents);
         }
@@ -71,7 +100,7 @@ int main(int argc, char *argv[]) {
     for (;;) {
 		status = poll(ufds, 1 + nCli, -1);
         if (status < 0)  fatalp("Error in poll().\t");
-        if (status == 0) cout <<proc <<": poll timed out\n";
+        //if (status == 0) cout <<proc <<": poll timed out\n";
 		
         int k;
         for (k = 0; k < nCli; k++) {
@@ -82,8 +111,19 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-        
     }	// end polling loop
+}
+
+// Send an acknowledgement to a newly connected child
+void acknowledge(int id, toPoll* worker)
+{
+	char ack[256];
+    sprintf(ack, "welcome %d", id);
+	
+	int bytes = write(worker[id].fd, ack, strlen(ack));
+	if (bytes < 1) say("Error during ack write.");
+	
+	cout << "New client (" << id << ") acknowledged." << endl;
 }
 
 //==============================================================================
@@ -110,7 +150,7 @@ int doWelcome(int welcomeSock, int* nClip, toPoll* worker,
 	// ACK should have child ID number
     int bytes = write(newfd, greeting, strlen(greeting));
     if (bytes < 1) say("Error while writing to socket");
-
+	printf("New client welcomed.\n");
     *nClip = nCli;		// Return the possibly-modified index of last client.
     return 1;           // Success.  We got 1 new client.
 }
