@@ -5,7 +5,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #include "tools.hpp"
 
-bool messageTagEquals(char* message, char* subStr)
+bool messageTagEquals(char* message, const char* subStr)
 {
 	// Position of the '>' character
 	char *pos = strchr(message, '>');
@@ -14,7 +14,7 @@ bool messageTagEquals(char* message, char* subStr)
 	if (tagIndex == -1) {
 		return false;
 	}
-	return (strncmp(message + 1, subStr, strlen(message) - tagIndex) == 0)
+	return (strncmp(message + 1, subStr, strlen(message) - tagIndex) == 0);
 }
 
 // --------------------------------------------------------------------------

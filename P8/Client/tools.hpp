@@ -46,7 +46,7 @@ typedef FILE* cstream;
 #define DUMPp(p) "\n"<<hex<<"   " #p " @ "<<(unsigned)&p<<"   value = "<<(unsigned)p<<"   " #p " --> "<<dec<<*p
 #define DUMPv(k) "\n"<<hex<<"   " #k " @ "<<(unsigned)&k<<"   value = "<<dec<<k
 
-bool	messageTagEquals(char*, char*);
+bool	messageTagEquals(char*, const char*);
 // -------------------------------------------------------------------
 // Routine screen and process management.-----------------------------
 // -------------------------------------------------------------------
