@@ -7,6 +7,5 @@ int main(int argc, char* argv[]) {
 	
 	int port = atoi(argv[1]);
 	
-	Mom *m = new Mom(port);
-	delete m;
+	Mom::init(port);
 }

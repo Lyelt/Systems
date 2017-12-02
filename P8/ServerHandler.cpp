@@ -82,17 +82,57 @@ int ServerHandler::doWelcome(int welcomeSock, int* nClip, toPoll* worker,
 
 // =====================================================================
 // Scan the working sockets and process whatever tasks you find
-int ServerHandler::doPoll() {
+void ServerHandler::doPoll() {
     for (;;) {
 		status = poll(ufds, 1 + nCli, -1);
         if (status < 0)  fatalp("Error in poll().\t");
 		
         for (int k = 0; k < nCli; k++) {
             if (worker[k].revents != 0) {
-                return k;
+                status = doService( &worker[k] );
+                 if ( status == -1){		// Remove dead socket from polling table
+                     worker[k] = worker[--nCli];		// decrement # of workers
+                  }
             }
         }
     }
+}
+
+int ServerHandler::doService(toPoll* p) {
+	int retval = 0;		// Change in number of workers.
+	char buf[BUFSIZ + 1];
+    // ------------------------------------------- Test for a message event.
+    if (p->revents & POLLIN) {   // This is a read event--read it
+		
+		int bytes = read(p->fd, buf, (sizeof buf) -1);   // -1 = don't time out.
+		// --------------------------------- We got a message, so handle it.
+		if (bytes > 0) {
+			buf[bytes] = '\0';
+			Mom::handleMessage(p, buf);
+		}
+		// -----------------------No message, so handle the possible errors.
+		else if (bytes == 0) {	// Indicates end of file.
+			printf("\nclosing socket on port %d\n", getPort(p->fd));
+			close(p->fd);
+			retval = -1;
+		} 
+		else if (errno == ECONNRESET) {
+			sayp("socket %d disappeared", getPort(p->fd));
+			close(p->fd);
+			retval = -1;
+		} 
+		else {
+			fatalp("Error %d from read, port %d", bytes, getPort(p->fd));
+		}
+    }
+    // ---------------------------- It wasn't a message, so test for hangup.
+    else if (p->revents & POLLHUP) {  // Caller hung up.
+        say("Removing dead socket %d\n", getPort(p->fd));
+        close(p->fd);
+        retval = -1;
+    }	// end if p has events.
+	
+    return retval;
 }
 
 //==============================================================================
@@ -134,25 +174,5 @@ void ServerHandler::writeToClient(toPoll* p, char* message)
 
 int ServerHandler::readFromClient(toPoll* p, char* buf)
 {
-	int retval = 0;
-	int bytes = read(p->fd, buf, (sizeof buf) -1);   // -1 = don't time out.
-    // --------------------------------- We got a message, so handle it.
-    if (bytes > 0) {
-        buf[bytes] = '\0';
-    }
-    // -----------------------No message, so handle the possible errors.
-    else if (bytes == 0) {	// Indicates end of file.
-        printf("\nclosing socket on port %d\n", getPort(p->fd));
-        close(p->fd);
-        retval = -1;
-    } 
-	else if (errno == ECONNRESET) {
-        sayp("socket %d disappeared", getPort(p->fd));
-        close(p->fd);
-        retval = -1;
-    } 
-	else {
-        fatalp("Error %d from read, port %d", bytes, getPort(p->fd));
-    }
-	return retval;
+	
 }

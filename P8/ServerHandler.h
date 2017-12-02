@@ -18,8 +18,9 @@ class ServerHandler {
 		char greeting[256];
 		
 		int doWelcome(int, int*, toPoll*, const char*);
-		void printsockaddr_in(const char*, sockaddr_in);
 		int getPort(int);
+		int doService(toPoll*);
+		void printsockaddr_in(const char*, sockaddr_in);
 		void acknowledge(int, toPoll*);
 
 	public:
@@ -30,7 +31,7 @@ class ServerHandler {
 		
 		void start(int);
 		void connectClients();
-		int doPoll();
+		void doPoll();
 		void writeToClient(toPoll*, char*);
 		int readFromClient(toPoll*, char*);
 };

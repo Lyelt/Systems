@@ -2,11 +2,14 @@
 #include "tools.hpp"
 #include "Socket.hpp"
 #include "Job.h"
-
-
 #define MAXJOBS 10
 
-Mom::Mom(int port) 
+ServerHandler* Mom::server;
+vector<Job> Mom::jobTable;
+vector<Job> Mom::doneJobs;
+time_t Mom::startTime;
+
+void Mom::init(int port) 
 {
 	banner();
 	createJobs();
@@ -21,10 +24,7 @@ Mom::Mom(int port)
 	cout << "Current time: " << startTime << ". Now polling." << endl;
 	
 	// tell the server to poll and return a worker # whenever there's an event
-	for(;;) {
-		int toService = server->doPoll();
-		int status = doService(&(server->worker[toService]));
-	}
+	server->doPoll();
 	
 	delete server;
 }
@@ -43,33 +43,13 @@ void Mom::createJobs()
 	}
 }
 
-//==============================================================================
-// Returns -1 if the connection was closed; 0 otherwise
-int Mom::doService(toPoll* p) {
-    
-    int retval = 0;		// Change in number of workers.
-
-    // ------------------------------------------- Test for a message event.
-    if (p->revents & POLLIN) {   // This is a read event--read it
-		char buf[BUFSIZ + 1];
-        server->readFromClient(p, buf);
-		int kidId = getKid(p);
-    }
-    // ---------------------------- It wasn't a message, so test for hangup.
-    else if (p->revents & POLLHUP) {  // Caller hung up.
-        //say("Removing dead socket %d\n", getPort(p->fd));
-        close(p->fd);
-        retval = -1;
-    }	// end if p has events.
-    return retval;
-}
-
 // 
-void Mom::handleMessage(char* buf, int kidId, time_t startTime) {
-	if (strncmp(buf, "<choice>", 8) == 0) { // job choice message
+void Mom::handleMessage(toPoll* p, char* message) {
+	int kidId = getKid(p);
+	if (strncmp(message, "<choice>", 8) == 0) { // job choice message
 		cout << "Received job choice message" << endl;
 		char* idSubstr;
-		strncpy(idSubstr, buf + 8, strlen(buf) - 8);
+		strncpy(idSubstr, message + 8, strlen(message) - 8);
 		int id = atoi(idSubstr);
 		for (vector<Job>::iterator it = jobTable.begin(); it != jobTable.end(); ++it) {
 			if ((*it).id == id) {
@@ -81,7 +61,7 @@ void Mom::handleMessage(char* buf, int kidId, time_t startTime) {
 		}
 		//serializeJobTable(); 
 	}
-	else if (strncmp(buf, "<done>", 6) == 0) { // job done message
+	else if (strncmp(message, "<done>", 6) == 0) { // job done message
 		cout << "Received job done message" << endl;
 		time_t now;
 		time(&now);
