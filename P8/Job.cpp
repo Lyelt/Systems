@@ -1,11 +1,14 @@
 #include "tools.hpp"
 #include "Job.h"
 
+int Job::idCount = 0;
+
 Job::Job(short speedVal, short funVal, short diffVal)
 {
 	speed = speedVal;
 	fun = funVal;
 	difficulty = diffVal;
+	id = ++idCount;
 }
 
 void Job::setKidId(int id)

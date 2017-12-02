@@ -3,8 +3,8 @@
 class Job 
 {
 	private:
+		static int idCount;
 		int kidId;
-		int id;
 		short speed;
 		short fun;
 		short difficulty;
@@ -12,9 +12,8 @@ class Job
 	public:
 		Job() {}
 		Job(short, short, short);
-		
+		int id;
 		void setKidId(int);
 		void print(ostream& out);
-		
 };
 #endif
