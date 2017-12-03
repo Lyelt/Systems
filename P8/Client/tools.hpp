@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iomanip>
 #include <limits>
+#include <algorithm>
 
 #include <cstdio>      // for NULL
 #include <cstdlib>     // for malloc() and calloc()
@@ -46,7 +47,7 @@ typedef FILE* cstream;
 #define DUMPp(p) "\n"<<hex<<"   " #p " @ "<<(unsigned)&p<<"   value = "<<(unsigned)p<<"   " #p " --> "<<dec<<*p
 #define DUMPv(k) "\n"<<hex<<"   " #k " @ "<<(unsigned)&k<<"   value = "<<dec<<k
 
-bool	messageTagEquals(char*, const char*);
+void	parseMessage(char*, char*, char*);
 // -------------------------------------------------------------------
 // Routine screen and process management.-----------------------------
 // -------------------------------------------------------------------

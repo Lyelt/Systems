@@ -18,7 +18,12 @@ class Kid {
 		void doJob(int);
 		bool isQuit(char*);
 		int chooseJob(char*);
+		
 		vector<Job> deserializeJobTable(char*);
+		Job getLazy(vector<Job>);
+		Job getTired(vector<Job>);
+		Job getPrissy(vector<Job>);
+		Job getGreedy(vector<Job>);
 		
 	public:
 		Kid(ClientHandler*);

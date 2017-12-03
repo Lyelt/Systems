@@ -16,6 +16,6 @@ class ClientHandler {
 		~ClientHandler() {}
 		
 		void start(int, char**);
-		void writeToServer(char*);
+		void writeToServer(const char*);
 };
 #endif

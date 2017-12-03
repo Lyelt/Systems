@@ -2,18 +2,20 @@
 #define JOB_H
 class Job 
 {
-	private:
+	public:
+		Job() {}
+		Job(short, short, short);
+		Job(int, short, short, short);
+		
+		int id;
 		static int idCount;
 		int kidId;
 		short speed;
 		short fun;
 		short difficulty;
 		
-	public:
-		Job() {}
-		Job(short, short, short);
-		int id;
 		void setKidId(int);
 		void print(ostream& out);
+		int getPoints() const;
 };
 #endif

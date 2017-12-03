@@ -6,6 +6,6 @@ int main(int argc, char* argv[]) {
 		fatal("Usage %s port\n", argv[0]);
 	
 	int port = atoi(argv[1]);
-	
+	srand(time(NULL));
 	Mom::init(port);
 }

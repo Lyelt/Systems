@@ -171,7 +171,12 @@ void ServerHandler::acknowledge(int id, toPoll* worker)
 	cout << "New client (" << id << ") acknowledged." << endl;
 }
 
-void ServerHandler::writeToClient(toPoll* p, char* message)
+void ServerHandler::writeToClient(int kidId, const char* message)
+{
+	writeToClient(&worker[kidId], message);
+}
+
+void ServerHandler::writeToClient(toPoll* p, const char* message)
 {
 	int bytes = write(p->fd, message, strlen(message));
 	if (bytes < 1) say ("Error writing to client.");

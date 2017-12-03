@@ -11,6 +11,14 @@ Job::Job(short speedVal, short funVal, short diffVal)
 	id = ++idCount;
 }
 
+Job::Job(int idVal, short speedVal, short funVal, short diffVal)
+{
+	id = idVal;
+	speed = speedVal;
+	fun = funVal;
+	difficulty = diffVal;
+}
+
 void Job::setKidId(int id)
 {
 	kidId = id;
@@ -22,4 +30,9 @@ void Job::print(ostream& out)
 	out << "\tDifficulty: " << difficulty << endl;
 	out << "\tSpeed: " << speed << endl;
 	out << "\tFun: " << fun << endl;
+}
+
+int Job::getPoints() const
+{
+	return this->speed * (this->fun + this->difficulty); 
 }

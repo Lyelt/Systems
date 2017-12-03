@@ -32,7 +32,8 @@ class ServerHandler {
 		void start(int);
 		void connectClients();
 		void doPoll();
-		void writeToClient(toPoll*, char*);
+		void writeToClient(toPoll*, const char*);
+		void writeToClient(int, const char*);
 };
 
 #endif

@@ -5,16 +5,26 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #include "tools.hpp"
 
-bool messageTagEquals(char* message, const char* subStr)
+void parseMessage(char* message, char* tag, char* parsed)
 {
 	// Position of the '>' character
 	char *pos = strchr(message, '>');
 	int tagIndex = pos ? pos - message : -1;
-	// It's an invalid message
-	if (tagIndex == -1) {
-		return false;
+	// Copy the text between the < and >
+	strncpy(tag, message + 1, tagIndex - 1);
+	tag[tagIndex - 1] = '\0';
+	
+	if (strlen(message) == tagIndex) {
+		parsed[0] = '\0';
+		return; // If there's no message and just a tag
 	}
-	return (strncmp(message + 1, subStr, strlen(message) - tagIndex) == 0);
+		
+	
+	// Copy the rest of the text after the >
+	int msgIndex = tagIndex + 1;
+	int msgLen = strlen(message) - msgIndex;
+	strncpy(parsed, message + msgIndex, msgLen);
+	parsed[msgLen] = '\0';
 }
 
 // --------------------------------------------------------------------------

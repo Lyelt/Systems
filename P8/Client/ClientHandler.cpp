@@ -27,6 +27,7 @@ void ClientHandler::start(int argc, char *argv[] )
     while (status != -1) {
 		// wait for server to acknowledge the connection. 
 		nBytes = read( client.sockfd(), buf, sizeof buf );
+		buf[nBytes + 1] = '\0';
 		cout << nBytes << " bytes read from server." << endl;
 		if ( nBytes > 0 ) {
 			status = kid->handleMessage(buf);
@@ -40,7 +41,7 @@ void ClientHandler::start(int argc, char *argv[] )
     exit(0);
 }
 
-void ClientHandler::writeToServer(char* message)
+void ClientHandler::writeToServer(const char* message)
 {
 	int nBytes = write( client.sockfd(), message, strlen(message) );
     if( nBytes < 0 ) fatalp( "Error while writing to socket.");
