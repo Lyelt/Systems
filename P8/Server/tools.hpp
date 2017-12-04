@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <limits>
 #include <algorithm>
+#include <map>
 
 #include <cstdio>      // for NULL
 #include <cstdlib>     // for malloc() and calloc()

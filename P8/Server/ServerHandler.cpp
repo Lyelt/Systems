@@ -21,9 +21,9 @@ ServerHandler::ServerHandler(int port) {
 
 // =====================================================================
 // If welcome socket has a caller, service it.
-void ServerHandler::connectClients() {
-	cout << "Waiting for " << MAXCLIENTS - nCli << " more client(s)." << endl;
+int ServerHandler::connectClients() {
 	for (;;) {
+		cout << "Waiting for " << MAXCLIENTS - nCli << " more client(s)." << endl;
 		status = poll(ufds, 1 + nCli, -1);
         if (status < 0)  fatalp("Error in poll().\t");
         if (status == 0) cout  <<": poll timed out\n";
@@ -48,6 +48,7 @@ void ServerHandler::connectClients() {
 	}
 	
 	cout << "All "<< nCli <<" clients connected." << endl;
+	return nCli;
 }
 
 //==============================================================================

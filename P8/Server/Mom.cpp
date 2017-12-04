@@ -5,6 +5,8 @@ ServerHandler* Mom::server;
 vector<Job> Mom::jobTable;
 vector<Job> Mom::doneJobs;
 time_t Mom::startTime;
+int Mom::numKids;
+int Mom::doneKids;
 
 const char* CHOICE = "choice";
 const char* DONE = "done";
@@ -17,7 +19,7 @@ void Mom::init(int port)
 	server = new ServerHandler(port);
 	
 	// wait for all the clients to connect
-	server->connectClients();
+	numKids = server->connectClients();
 	
 	// record the time
 	time(&startTime);
@@ -77,6 +79,10 @@ void Mom::handleMessage(int kidId, char* message)
 		time(&now);
 		if (now - startTime > 21) { // it's been 21 time periods
 			server->writeToClient(kidId, "<quit>");
+			if (++doneKids == numKids) {
+				cout << "All " << numKids << " kids done working." << endl;
+				analyzeJobs();
+			}
 		}
 		else {
 			sendJobTable(kidId);
@@ -97,13 +103,27 @@ void Mom::sendJobTable(int kidId)
 string Mom::serializeJobTable()
 {
 	stringstream ss;
-	vector<Job>::iterator it;
 	//serialize the jobs for easy parsing
 	//id:speed:fun:diff,id:speed:fun:diff,...
-	for(it = jobTable.begin(); it != jobTable.end(); ++it) {
-		ss << (*it).id << ":" << (*it).speed << ":" <<
-		(*it).fun << ":" << (*it).difficulty << ",";
+	for(auto& it : jobTable) {
+		ss << it.id << ":" << it.speed << ":" <<
+		it.fun << ":" << it.difficulty << ",";
 	}
+	
+	ss.str().pop_back();
 	cout << "Job table: " << ss.str() << endl;
 	return ss.str();
+}
+
+void Mom::analyzeJobs()
+{
+	map<int, int> pointsEarned;
+	
+	for (auto& job : doneJobs) {
+		pointsEarned[job.kidId] += job.getPoints();
+	}
+	
+	for (auto& kid : pointsEarned) {
+		cout << "Kid " << kid.first << " earned " << kid.second << " points." << endl;
+	}
 }

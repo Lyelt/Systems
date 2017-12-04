@@ -12,10 +12,13 @@ class Mom {
 		static vector<Job> jobTable;
 		static vector<Job> doneJobs;
 		static time_t startTime;
+		static int numKids;
+		static int doneKids;
 
 		static Job createJob();
 		static void createJobs();
 		static void sendJobTable(int);
+		static void analyzeJobs();
 		static string serializeJobTable();
 	public:
 		Mom() {}

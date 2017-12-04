@@ -53,7 +53,7 @@ int Kid::chooseJob(char* message)
 	vector<Job> jobs = deserializeJobTable(message);
 	Job chosen;
 	cout << "Client: Job table deserialized" << endl;
-	switch (mood) {
+	switch (mood - 1) {
 		case Lazy:
 			chosen = getLazy(jobs);
 			break;
