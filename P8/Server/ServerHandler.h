@@ -4,7 +4,7 @@
 #include "tools.hpp"
 #include "Socket.hpp"
 
-#define MAXCLIENTS 2
+#define MAXCLIENTS 4
 typedef struct pollfd toPoll;
 
 class ServerHandler {

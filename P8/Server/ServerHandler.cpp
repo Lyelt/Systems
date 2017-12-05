@@ -22,20 +22,21 @@ ServerHandler::ServerHandler(int port) {
 // =====================================================================
 // If welcome socket has a caller, service it.
 int ServerHandler::connectClients() {
+	cout << "Waiting for " << MAXCLIENTS << " client(s) to connect." << endl;
 	for (;;) {
-		cout << "Waiting for " << MAXCLIENTS - nCli << " more client(s)." << endl;
+		
 		status = poll(ufds, 1 + nCli, -1);
         if (status < 0)  fatalp("Error in poll().\t");
         if (status == 0) cout  <<": poll timed out\n";
 
         if (welcome->revents != 0 )	{
             if (welcome->revents & POLLIN)	{
-				cout << "Client has arrived!" << endl;
 				// create a new client connection. 
                 if (nCli < MAXCLIENTS) {
 					int newWorker = doWelcome(welcomeFd, &nCli, worker);
 					if (newWorker > 0) {
 						nCli += newWorker;
+						cout << "New client connected." << endl;
 					}
 				}
             }

@@ -14,10 +14,12 @@ class Kid {
 		Mood mood;
 		int points;
 		int id;
+		int currentWait;
+		Job chosenJob;
 		
-		void doJob(int);
-		bool isQuit(char*);
-		int chooseJob(char*);
+		void doJob();
+		void chooseJob(char*);
+		bool isQuit(char*);	
 		
 		vector<Job> deserializeJobTable(char*);
 		Job getLazy(vector<Job>);

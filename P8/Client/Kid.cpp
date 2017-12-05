@@ -5,86 +5,99 @@
 #include "Job.h"
 const char* QUIT = "quit";
 const char* ACK = "ack";
+const char* JOBS = "jobs";
+const char* GOOD = "good";
 // Initialize the kid's points and pick a random mood
 Kid::Kid(ClientHandler* cli)
 {
 	client = cli;
 	points = 0;
-	mood = static_cast<Mood>(rand() % 6);
+	mood = static_cast<Mood>(rand() % 5 + 1);
 }
 
 int Kid::handleMessage(char* message)
 {
-	cout << "Client: Handling message " << message << endl;
+	//cout << "Client: Handling message " << message << endl;
+	
+	// Parse the message and tag we received
 	char parsedMsg[BUFSIZ + 1];
 	char parsedTag[BUFSIZ + 1];
 	parseMessage(message, parsedTag, parsedMsg);
-	cout << "Client: Message parsed - tag (" << parsedTag << ") and message (" << parsedMsg << ")" << endl;
+	
+	//cout << "Client: Message parsed - tag (" << parsedTag << ") and message (" << parsedMsg << ")" << endl;
+	
 	// If this is a quit message, tell the client handler to quit
 	if (strcmp(parsedTag, QUIT) == 0) {
-		cout << "Client: Kid "<<id << " received quit message" << endl;
+		cout << "Client: Kid "<< id << " received quit message" << endl;
 		return -1;
 	}
+	// If this is an ack, store our id and request the job table
 	else if (strcmp(parsedTag, ACK) == 0) {
-		id = atoi(parsedMsg); // message should contain this kid's id
-		cout << "Client: Kid "<< id<<" received ack message" << endl;
+		id = atoi(parsedMsg);
+		cout << "Client: Kid "<< id <<" received ack message" << endl;
 		client->writeToServer("<req>");
-		return 1;
 	}
-	cout << "Client: Kid "<< id<<" received job table" << endl;	
-	// Otherwise, the message contains a job table and we need to choose one
-	int wait = chooseJob(parsedMsg);
-	doJob(wait);
+	// If mom sent us the job table, tell her what job we want
+	else if (strcmp(parsedTag, JOBS) == 0) {
+		cout << "Client: Kid "<< id <<" received job table" << endl;
+		chooseJob(parsedMsg);
+	}
+	// If our choice is good, do the job
+	else if (strcmp(parsedTag, GOOD) == 0) {
+		doJob();
+	}
+	else {
+		fatal("Kid %d received an unknown message", id);
+	}
+
 	return 1;
 }
 
-// Sleep for the required number of time periods
-void Kid::doJob(int wait)
+// Sleep for the required time and tell mom we're done
+void Kid::doJob()
 {
-	sleep(wait);
+	sleep(chosenJob.speed);
+	chosenJob.print(cout);
 	
 	const char* done = "<done>";
 	client->writeToServer(done);
 }
 
 // Choose a job and return the time it will take to do it
-int Kid::chooseJob(char* message)
+void Kid::chooseJob(char* message)
 {
 	vector<Job> jobs = deserializeJobTable(message);
-	Job chosen;
-	cout << "Client: Job table deserialized" << endl;
-	switch (mood - 1) {
+
+	short currMood = mood - 1; // for accessing the enum values 0-4
+	switch (currMood) {
 		case Lazy:
-			chosen = getLazy(jobs);
+			chosenJob = getLazy(jobs);
 			break;
 		case Tired:
-			chosen = getTired(jobs);
+			chosenJob = getTired(jobs);
 			break;
 		case Prissy:
-			chosen = getPrissy(jobs);
+			chosenJob = getPrissy(jobs);
 			break;
 		case Greedy:
-			chosen = getGreedy(jobs);
+			chosenJob = getGreedy(jobs);
 			break;
 		case Impatient:
-			chosen = jobs[9];
+			chosenJob = jobs[9];
 			break;
 		default:
-			fatal("Error choosing a job.");
+			fatal("Error choosing a job for mood %d.", currMood);
 			break;
 	}
 
-	cout << "Child with mood " << mood << " chose job with id " << chosen.id << endl;
-	int speed = chosen.speed;
-	int jobId = chosen.id;
+	cout << "Child with mood " << currMood << " chose job with id " << chosenJob.id << endl;
 	
 	char buf[BUFSIZ + 1];
-	sprintf(buf, "<choice>%d", jobId);
+	sprintf(buf, "<choice>%d", chosenJob.id);
 	client->writeToServer(buf);
-	
-	return speed;
 }
 
+// Job table is given to us as a string, we need to parse it for useful information
 vector<Job> Kid::deserializeJobTable(char* message)
 {
 	vector<Job> jobs;
@@ -104,6 +117,7 @@ vector<Job> Kid::deserializeJobTable(char* message)
 			tokens.push_back(token);
 		}
 		
+		// Tokens should contain the necessary info to construct a job
 		int id = atoi(tokens[0].c_str());
 		short speed = atoi(tokens[1].c_str());
 		short fun = atoi(tokens[2].c_str());
@@ -111,7 +125,7 @@ vector<Job> Kid::deserializeJobTable(char* message)
 		jobs.push_back(Job(id, speed, fun, diff));
 	}
 	
-	return jobs; 
+	return jobs;
 }
 
 Job Kid::getLazy(vector<Job> jobs)

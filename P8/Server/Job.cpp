@@ -30,6 +30,7 @@ void Job::print(ostream& out)
 	out << "\tDifficulty: " << difficulty << endl;
 	out << "\tSpeed: " << speed << endl;
 	out << "\tFun: " << fun << endl;
+	out << "\tTotal points: " << getPoints() << endl;
 }
 
 int Job::getPoints() const

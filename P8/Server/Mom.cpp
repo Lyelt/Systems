@@ -58,19 +58,30 @@ void Mom::handleMessage(int kidId, char* message)
 	cout << "Server: Message parsed - tag (" << parsedTag << ") and message (" << parsedMsg << ")" << endl;
 	
 	if (strcmp(parsedTag, CHOICE) == 0) { // job choice message
-		cout << "Server: Received job choice message" << endl;
-		
 		int jobId = atoi(parsedMsg);
+		cout << "Server: Kid " <<kidId <<" chose job "<<jobId << endl;
 		
+		bool jobFound = false;
 		for (vector<Job>::iterator it = jobTable.begin(); it != jobTable.end(); ++it) {
-			if ((*it).id == jobId) {
-				(*it).setKidId(kidId);	 // set kid id
-				doneJobs.push_back(*it); // move job to done table
+			if ((*it).id == jobId) {		// The kid's choice was good
+				jobTable.erase(it);			// remove from job table
 				
-				jobTable.erase(it);		 		 // remove from job table
+				(*it).setKidId(kidId);	 	// set kid id
+				doneJobs.push_back(*it); 	// move job to done table
+				
 				jobTable.push_back(createJob()); // replace removed job
+				
+				jobFound = true;
 				break;
 			}
+		}
+		
+		// ---------- Tell kid the choice was good or send the job table again
+		if (jobFound) {
+			server->writeToClient(kidId, "<good>");
+		}
+		else {
+			sendJobTable(kidId);
 		}
 	}
 	else if (strcmp(parsedTag, DONE) == 0) { // job done message
@@ -88,8 +99,11 @@ void Mom::handleMessage(int kidId, char* message)
 			sendJobTable(kidId);
 		}
 	}
-	else {
+	else if (strcmp(parsedTag, REQ) == 0) {
 		sendJobTable(kidId);
+	}
+	else {
+		fatal("Mom received an unknown message");
 	}
 }
 
@@ -110,19 +124,18 @@ string Mom::serializeJobTable()
 		it.fun << ":" << it.difficulty << ",";
 	}
 	
-	ss.str().pop_back();
-	cout << "Job table: " << ss.str() << endl;
+	//cout << "Job table: " << ss.str() << endl;
 	return ss.str();
 }
 
 void Mom::analyzeJobs()
 {
 	map<int, int> pointsEarned;
-	
+	cout << "---------------------------------------" << endl;
 	for (auto& job : doneJobs) {
 		pointsEarned[job.kidId] += job.getPoints();
 	}
-	
+	cout << "---------------------------------------" << endl;
 	for (auto& kid : pointsEarned) {
 		cout << "Kid " << kid.first << " earned " << kid.second << " points." << endl;
 	}
