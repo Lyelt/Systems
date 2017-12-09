@@ -67,6 +67,7 @@ Job Mom::createJob()
 	return Job(speed, fun, diff, kidName, done);
 }
 
+// Replace all the completed jobs with new ones
 void Mom::scanJobs()
 {
 	for (int i = 0; i < MAXJOBS; ++i) {
@@ -79,6 +80,8 @@ void Mom::scanJobs()
 	}
 }
 
+// -----------------------------------------------------------------------
+// Print all the completed jobs and the results of the kids' work
 void Mom::analyzeJobs()
 {
 	map<const char*, int> pointsEarned;

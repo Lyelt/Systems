@@ -20,6 +20,7 @@ class Mom {
 		time_t startTime;
 		time_t currTime;
 		
+		// Mom's job functions
 		void createJobs();
 		Job createJob();
 		void scanJobs();

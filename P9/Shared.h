@@ -5,11 +5,14 @@
 #include "Kid.h"
 
 typedef struct sigaction sigAct;
+
+// Global variables for handling signals and spawning kid threads
 extern void* doKid(void*);
 extern bool startFlag;
 extern bool quitFlag;
 
-class Shared {
+class Shared 
+{
 	public:
 		Shared();
 		~Shared() {}

@@ -10,7 +10,8 @@ enum Mood { Lazy, Tired, Prissy, Greedy, Impatient };
 class Shared;
 class SignalHandler;
 
-class Kid {
+class Kid 
+{
 	private:
 		Mood mood;
 		
@@ -27,10 +28,11 @@ class Kid {
 		const char* name;
 		vector<Job> doneJobs;
 
-		int chosenJobIndex;
+		int chosenJobIndex;	  // currently chosen job index
 		Shared *shared;
-		SignalHandler *siggy;
+		SignalHandler *siggy; // signal handler for start and quit
 		
+		// Kid's job functions
 		void printJobs();
 		void doJob();
 		int chooseJob();

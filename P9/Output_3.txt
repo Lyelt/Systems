@@ -1,0 +1,215 @@
+---------------------------------------------------------------
+	Nicholas Ghobrial
+	Systems Programming
+	Sat Dec  9 2017	05:40:42
+---------------------------------------------------------------
+Kid Avi created
+Kid Geoff created
+Kid Steph created
+Kid Chloe created
+Job 1 performed by kid Chloe:
+	Difficulty: 1
+	Speed: 1
+	Fun: 4
+	Total points: 5
+Job 5 performed by kid Geoff:
+	Difficulty: 2
+	Speed: 2
+	Fun: 1
+	Total points: 6
+Job 4 performed by kid Chloe:
+	Difficulty: 4
+	Speed: 1
+	Fun: 5
+	Total points: 9
+Job 9 performed by kid Avi:
+	Difficulty: 1
+	Speed: 4
+	Fun: 3
+	Total points: 16
+Job 8 performed by kid Steph:
+	Difficulty: 3
+	Speed: 3
+	Fun: 1
+	Total points: 12
+Job 11 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 2
+	Fun: 2
+	Total points: 10
+Job 15 performed by kid Chloe:
+	Difficulty: 2
+	Speed: 1
+	Fun: 4
+	Total points: 6
+Job 0 performed by kid Steph:
+	Difficulty: 3
+	Speed: 4
+	Fun: 2
+	Total points: 20
+Job 13 performed by kid Avi:
+	Difficulty: 3
+	Speed: 5
+	Fun: 5
+	Total points: 40
+Job 16 performed by kid Geoff:
+	Difficulty: 2
+	Speed: 2
+	Fun: 1
+	Total points: 6
+Job 18 performed by kid Avi:
+	Difficulty: 1
+	Speed: 2
+	Fun: 2
+	Total points: 6
+Job 6 performed by kid Steph:
+	Difficulty: 2
+	Speed: 3
+	Fun: 2
+	Total points: 12
+Job 20 performed by kid Avi:
+	Difficulty: 2
+	Speed: 2
+	Fun: 1
+	Total points: 6
+Job 19 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 1
+	Fun: 5
+	Total points: 8
+Job 23 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 1
+	Fun: 5
+	Total points: 8
+Job 22 performed by kid Avi:
+	Difficulty: 3
+	Speed: 5
+	Fun: 1
+	Total points: 20
+Job 3 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 2
+	Fun: 3
+	Total points: 12
+Job 25 performed by kid Chloe:
+	Difficulty: 4
+	Speed: 1
+	Fun: 3
+	Total points: 7
+Job 26 performed by kid Avi:
+	Difficulty: 4
+	Speed: 2
+	Fun: 4
+	Total points: 16
+Geoff received quit signal
+Geoff earned total: 12 points
+Avi received quit signal
+Avi earned total: 104 points
+Chloe received quit signal
+Chloe earned total: 65 points
+Steph received quit signal
+Steph earned total: 44 points
+-------------------------------------------------
+All kids done working.
+Job 1 performed by kid Chloe:
+	Difficulty: 1
+	Speed: 1
+	Fun: 4
+	Total points: 5
+Job 5 performed by kid Geoff:
+	Difficulty: 2
+	Speed: 2
+	Fun: 1
+	Total points: 6
+Job 4 performed by kid Chloe:
+	Difficulty: 4
+	Speed: 1
+	Fun: 5
+	Total points: 9
+Job 9 performed by kid Avi:
+	Difficulty: 1
+	Speed: 4
+	Fun: 3
+	Total points: 16
+Job 8 performed by kid Steph:
+	Difficulty: 3
+	Speed: 3
+	Fun: 1
+	Total points: 12
+Job 11 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 2
+	Fun: 2
+	Total points: 10
+Job 15 performed by kid Chloe:
+	Difficulty: 2
+	Speed: 1
+	Fun: 4
+	Total points: 6
+Job 0 performed by kid Steph:
+	Difficulty: 3
+	Speed: 4
+	Fun: 2
+	Total points: 20
+Job 13 performed by kid Avi:
+	Difficulty: 3
+	Speed: 5
+	Fun: 5
+	Total points: 40
+Job 16 performed by kid Geoff:
+	Difficulty: 2
+	Speed: 2
+	Fun: 1
+	Total points: 6
+Job 18 performed by kid Avi:
+	Difficulty: 1
+	Speed: 2
+	Fun: 2
+	Total points: 6
+Job 6 performed by kid Steph:
+	Difficulty: 2
+	Speed: 3
+	Fun: 2
+	Total points: 12
+Job 20 performed by kid Avi:
+	Difficulty: 2
+	Speed: 2
+	Fun: 1
+	Total points: 6
+Job 19 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 1
+	Fun: 5
+	Total points: 8
+Job 23 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 1
+	Fun: 5
+	Total points: 8
+Job 3 performed by kid Chloe:
+	Difficulty: 3
+	Speed: 2
+	Fun: 3
+	Total points: 12
+Job 22 performed by kid Avi:
+	Difficulty: 3
+	Speed: 5
+	Fun: 1
+	Total points: 20
+Job 25 performed by kid Chloe:
+	Difficulty: 4
+	Speed: 1
+	Fun: 3
+	Total points: 7
+Job 26 performed by kid Avi:
+	Difficulty: 4
+	Speed: 2
+	Fun: 4
+	Total points: 16
+---------------------------------------
+Kid Avi earned 104 points.
+Kid Geoff earned 12 points.
+Kid Steph earned 44 points.
+Kid Chloe earned 65 points.
+Avi is the winner with 104 points!

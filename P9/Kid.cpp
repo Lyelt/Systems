@@ -3,7 +3,8 @@
 #include "Job.h"
 
 Kid::Kid() = default;
-// Initialize the kid's points and pick a random mood
+
+// Initialize the kid object with shared, mood, and signal handler
 Kid::Kid(const char* myName, Shared* share)
 {
 	name = myName;
@@ -12,6 +13,7 @@ Kid::Kid(const char* myName, Shared* share)
 	siggy = new SignalHandler();
 }
 
+// Print total points earned
 void Kid::printJobs()
 {
 	int totalPoints = 0;
@@ -59,6 +61,8 @@ int Kid::chooseJob()
 	return -1;
 }
 
+// ----------------------------------------------------------------
+// Pick jobs based on mood
 int Kid::getLazy()
 {
 	int easiest = 0;
