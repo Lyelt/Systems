@@ -6,6 +6,7 @@ class Job
 		Job();
 		Job(short, short, short, const char*, bool);
 		
+		static int idCount;
 		int id;
 		bool done;
 		const char* kidName;

@@ -4,10 +4,8 @@
 #include "Job.h"
 #include "Kid.h"
 
-
 typedef struct sigaction sigAct;
 extern void* doKid(void*);
-
 extern bool startFlag;
 extern bool quitFlag;
 
@@ -17,6 +15,7 @@ class Shared {
 		~Shared() {}
 		Job jobTable[10];
 		pthread_mutex_t job_mutex = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_t write_mutex = PTHREAD_MUTEX_INITIALIZER;
 };
 
 #endif

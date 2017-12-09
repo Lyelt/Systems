@@ -14,7 +14,7 @@ class Mom {
 		Shared* shared;
 		const char* kidNames[4] = { "Avi", "Geoff", "Steph", "Chloe" };
 		Kid kids[4];
-		int tids[4];
+		pthread_t kidThreads[4];
 		
 		vector<Job> doneJobs;
 		time_t startTime;

@@ -14,10 +14,10 @@ class Kid {
 	private:
 		Mood mood;
 		
-		Job getLazy();
-		Job getTired();
-		Job getPrissy();
-		Job getGreedy();
+		int getLazy();
+		int getTired();
+		int getPrissy();
+		int getGreedy();
 		
 	public:
 		Kid();
@@ -26,11 +26,13 @@ class Kid {
 		
 		const char* name;
 		vector<Job> doneJobs;
-		Job chosenJob;
+
+		int chosenJobIndex;
 		Shared *shared;
 		SignalHandler *siggy;
 		
+		void printJobs();
 		void doJob();
-		Job chooseJob();
+		int chooseJob();
 };
 #endif

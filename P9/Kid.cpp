@@ -12,79 +12,92 @@ Kid::Kid(const char* myName, Shared* share)
 	siggy = new SignalHandler();
 }
 
+void Kid::printJobs()
+{
+	int totalPoints = 0;
+	for (auto& job : doneJobs) {
+		totalPoints += job.getPoints();
+	}
+	
+	pthread_mutex_lock(&(shared->write_mutex));
+		cout << name << " earned total: " << totalPoints << " points" << endl;
+	pthread_mutex_unlock(&(shared->write_mutex));
+}
+
 // Choose a job and return the time it will take to do it
-Job Kid::chooseJob()
+int Kid::chooseJob()
 {
 	short currMood = mood - 1; // for accessing the enum values 0-4
 	
-	for (;;) {
-		switch (currMood) {
-		case Lazy:
-			chosenJob = getLazy();
-			break;
-		case Tired:
-			chosenJob = getTired();
-			break;
-		case Prissy:
-			chosenJob = getPrissy();
-			break;
-		case Greedy:
-			chosenJob = getGreedy();
-			break;
-		case Impatient:
-			chosenJob = shared->jobTable[9];
-			break;
-		default:
-			fatal("Error choosing a job for mood %d.", currMood);
-			break;
-		}
-
-		if (chosenJob.kidName[0] == '\0') { // No kid has claimed the job yet
-			chosenJob.kidName = name;
-			return chosenJob;
-		}
+	switch (currMood) {
+	case Lazy:
+		chosenJobIndex = getLazy();
+		break;
+	case Tired:
+		chosenJobIndex = getTired();
+		break;
+	case Prissy:
+		chosenJobIndex = getPrissy();
+		break;
+	case Greedy:
+		chosenJobIndex = getGreedy();
+		break;
+	case Impatient:
+		chosenJobIndex = 9;
+		break;
+	default:
+		fatal("Error choosing a job for mood %d.", currMood);
+		break;
 	}
+	
+	// No kid has claimed the job yet
+	if (shared->jobTable[chosenJobIndex].kidName[0] == '\0') { 
+		shared->jobTable[chosenJobIndex].kidName = name;	
+		return chosenJobIndex;
+	}
+	
+	return -1;
 }
 
-Job Kid::getLazy()
+int Kid::getLazy()
 {
-	Job easiest = shared->jobTable[0];
+	int easiest = 0;
 	for (int i = 0; i < 10; ++i) {
-		if (shared->jobTable[i].difficulty < easiest.speed)
-			easiest = shared->jobTable[i];
+		if (shared->jobTable[i].difficulty < shared->jobTable[easiest].difficulty)
+			easiest = i;
 	}
 	
 	return easiest;
 }
 
-Job Kid::getTired()
+int Kid::getTired()
 {
-	Job shortest = shared->jobTable[0];
+	int shortest = 0;
 	for (int i = 0; i < 10; ++i) {
-		if (shared->jobTable[i].speed < shortest.speed)
-			shortest = shared->jobTable[i];
+		if (shared->jobTable[i].speed < shared->jobTable[shortest].speed)
+			shortest = i;
 	}
 	
 	return shortest;
 }
 
-Job Kid::getPrissy()
+int Kid::getPrissy()
 {
-	Job mostFun = shared->jobTable[0];
+	int mostFun = 0;
 	for (int i = 0; i < 10; ++i) {
-		if (shared->jobTable[i].fun < mostFun.fun)
-			mostFun = shared->jobTable[i];
+		if (shared->jobTable[i].fun < shared->jobTable[mostFun].fun)
+			mostFun = i;
 	}
 	
 	return mostFun;
 }
 
-Job Kid::getGreedy()
+int Kid::getGreedy()
 {
-	Job mostPoints = shared->jobTable[0];
+	int mostPoints = 0;
 	for (int i = 0; i < 10; ++i) {
-		if (shared->jobTable[i].getPoints() < mostPoints.getPoints())
-			mostPoints = shared->jobTable[i];
+		if (shared->jobTable[i].getPoints() < shared->jobTable[mostPoints].getPoints())
+			mostPoints = i;
 	}
 	
 	return mostPoints;

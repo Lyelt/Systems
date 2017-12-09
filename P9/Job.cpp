@@ -1,5 +1,7 @@
 #include "tools.hpp"
 #include "Job.h"
+
+int Job::idCount = 0;
 Job::Job() = default;
 
 Job::Job(short speedVal, short funVal, short diffVal, const char* kid, bool isDone)
@@ -9,6 +11,7 @@ Job::Job(short speedVal, short funVal, short diffVal, const char* kid, bool isDo
 	difficulty = diffVal;
 	kidName = kid;
 	done = isDone;
+	id = idCount++;
 }
 
 void Job::print(ostream& out)
